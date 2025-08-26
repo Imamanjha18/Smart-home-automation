@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Device Control</h2>
+<div class="devices-grid">
+    {% for device in devices %}
+    <div class="device-card">
+        <h3>{{ device.name }}</h3>
+        <p>Type: {{ device.device_type }}</p>
+        <p>State: <span class="device-state" id="state-{{ device.id }}">{{ device.state }}</span></p>
+        <div class="device-actions">
+            <button class="btn-on" onclick="controlDevice({{ device.id }}, 'on')">Turn On</button>
+            <button class="btn-off" onclick="controlDevice({{ device.id }}, 'off')">Turn Off</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<h2>Automation Tasks</h2>
+<div class="automations-list">
+    {% for automation in automations %}
+    <div class="automation-item">
+        <h3>{{ automation.name }}</h3>
+        <p>Action: {{ automation.action }} at {{ automation.time_value }}</p>
+        <p>Status: {{ 'Active' if automation.active else 'Inactive' }}</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

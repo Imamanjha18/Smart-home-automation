@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Schedule Automation Tasks</h2>
+
+<form id="automation-form">
+    <div class="form-group">
+        <label for="name">Task Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="device_id">Device:</label>
+        <select id="device_id" name="device_id" required>
+            {% for device in devices %}
+            <option value="{{ device.id }}">{{ device.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="action">Action:</label>
+        <select id="action" name="action" required>
+            <option value="on">Turn On</option>
+            <option value="off">Turn Off</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="schedule_type">Schedule Type:</label>
+        <select id="schedule_type" name="schedule_type" required>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="specific">Specific Date/Time</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="time_value">Time:</label>
+        <input type="time" id="time_value" name="time_value" required>
+    </div>
+    
+    <div class="form-group" id="days-group" style="display: none;">
+        <label>Days:</label>
+        <div>
+            <input type="checkbox" name="days" value="mon"> Monday
+            <input type="checkbox" name="days" value="tue"> Tuesday
+            <input type="checkbox" name="days" value="wed"> Wednesday
+            <input type="checkbox" name="days" value="thu"> Thursday
+            <input type="checkbox" name="days" value="fri"> Friday
+            <input type="checkbox" name="days" value="sat"> Saturday
+            <input type="checkbox" name="days" value="sun"> Sunday
+        </div>
+    </div>
+    
+    <button type="submit">Create Automation</button>
+</form>
+
+<h3>Existing Automation Tasks</h3>
+<div class="automations-list">
+    {% for automation in automations %}
+    <div class="automation-item">
+        <h4>{{ automation.name }}</h4>
+        <p>Device ID: {{ automation.device_id }}, Action: {{ automation.action }}</p>
+        <p>Schedule: {{ automation.schedule_type }}, Time: {{ automation.time_value }}</p>
+        <p>Days: {{ automation.days or 'N/A' }}</p>
+        <p>Status: {{ 'Active' if automation.active else 'Inactive' }}</p>
+    </div>
+    {% else %}
+    <p>No automation tasks yet.</p>
+    {% endfor %}
+</div>
+
+<script>
+document.getElementById('schedule_type').addEventListener('change', function() {
+    const daysGroup = document.getElementById('days-group');
+    daysGroup.style.display = this.value === 'weekly' ? 'block' : 'none';
+});
+
+document.getElementById('automation-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const days = Array.from(document.querySelectorAll('input[name="days"]:checked'))
+                     .map(checkbox => checkbox.value).join(',');
+    
+    const data = {
+        name: formData.get('name'),
+        device_id: formData.get('device_id'),
+        action: formData.get('action'),
+        schedule_type: formData.get('schedule_type'),
+        time_value: formData.get('time_value'),
+        days: days
+    };
+    
+    fetch('/schedule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Automation task created successfully!');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the automation task');
+    });
+});
+</script>
+{% endblock %}
