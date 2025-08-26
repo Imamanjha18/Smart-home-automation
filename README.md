@@ -35,7 +35,7 @@ A comprehensive Flask-based web application for controlling IoT devices through 
 ## Installation
 
 1. Clone the repository:
-git clone https://github.com/your-username/smart-home-automation.git
+git clone (https://github.com/Imamanjha18/Smart-home-automation)
 
 2. cd smart-home-automation
 
